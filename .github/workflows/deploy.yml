@@ -28,5 +28,7 @@ jobs:
       - run: poetry install
       # 実行する
       - run: poetry run python main.py
+        env:
+          FAS_CONTENTS_GITHUB_TOKEN: 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
       # Deploy to Firebase hosting
       - run: firebase deploy --token ${{ secrets.FIREBASE_TOKEN }} --only hosting:contents
