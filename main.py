@@ -11,6 +11,23 @@ from github.GithubException import UnknownObjectException
 
 markdowner = markdown2.Markdown()
 
+REPLACE_URLS = ["https://user-images.githubusercontent.com/", "https://github.com/"]
+
+
+def is_replace_url(url):
+    "URLが差し替え対象ならばTrueを返却する"
+    for replace_url in REPLACE_URLS:
+        if url.startswith(replace_url):
+            return True
+    return False
+
+
+def replace_md(md):
+    "マークダウンテキストのURLを差し替え先に変更する"
+    for url in REPLACE_URLS:
+        md = md.replace(url, "https://fas-contents.web.app/")
+    return md
+
 
 def download_image(md):
     "README.md内で使われている画像をダウンロードする"
@@ -18,12 +35,15 @@ def download_image(md):
     soup = BeautifulSoup(html, "html.parser")
     for img in soup.find_all("img"):
         url = img.attrs.get("src")
-        if url.startswith("https://user-images.githubusercontent.com/"):
+        if is_replace_url(url):
             o = urlparse(url)
             os.makedirs("public%s" % (os.path.dirname(o.path)), exist_ok=True)
-            image_data = urllib.request.urlopen(url).read()
-            with open("public%s" % o.path, mode="wb") as f:
-                f.write(image_data)
+            try:
+                image_data = urllib.request.urlopen(url).read()
+                with open("public%s" % o.path, mode="wb") as f:
+                    f.write(image_data)
+            except urllib.error.HTTPError:
+                pass
 
 
 shutil.rmtree("public", ignore_errors=True)
@@ -37,10 +57,7 @@ for repo in g.get_user().get_repos(visibility="public"):
         file = repo.get_readme()
         md = base64.b64decode(file.content).decode("utf-8")
         download_image(md)
-        md = md.replace(
-            "https://user-images.githubusercontent.com/",
-            "https://fas-contents.web.app/",
-        )
+        md = replace_md(md)
         with open("public/%s/README.md" % (repo.name), "w") as f:
             f.write(md)
     except UnknownObjectException:
