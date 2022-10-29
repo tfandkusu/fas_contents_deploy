@@ -7,6 +7,7 @@ license = "Apache License 2.0"
 
 [tool.poetry.dependencies]
 python = "^3.9"
+PyGithub = "^1.56"
 
 [tool.poetry.dev-dependencies]
 black = "^22.10.0"
