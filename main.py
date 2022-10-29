@@ -36,7 +36,6 @@ def download_image(md):
     for img in soup.find_all("img"):
         url = img.attrs.get("src")
         if is_replace_url(url):
-            print(url)
             o = urlparse(url)
             os.makedirs("public%s" % (os.path.dirname(o.path)), exist_ok=True)
             try:
