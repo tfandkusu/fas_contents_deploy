@@ -6,6 +6,11 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
 jobs:
   deploy: # job名
     # ubuntuで動かす
@@ -29,6 +34,6 @@ jobs:
       # 実行する
       - run: poetry run python main.py
         env:
-          FAS_CONTENTS_GITHUB_TOKEN: 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
+          FAS_CONTENTS_GITHUB_TOKEN: ${{ secrets.FAS_CONTENTS_GITHUB_TOKEN }} 
       # Deploy to Firebase hosting
       - run: firebase deploy --token ${{ secrets.FIREBASE_TOKEN }} --only hosting:contents
